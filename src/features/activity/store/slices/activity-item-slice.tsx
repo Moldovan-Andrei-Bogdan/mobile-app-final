@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ActivityItem } from "../../../../model/core.model";
 import activityItemService from "../../core/services/activity-item.service";
 import { ActivityItemState } from "../../../../model/core.states.model";
+import { HttpErrorModel } from "../../../../model/core.occ.model";
+import axios from "axios";
 
 const activityItemState: ActivityItemState = {
     data: {
@@ -9,7 +11,7 @@ const activityItemState: ActivityItemState = {
         title: '',
         description: '',
         jiraLink: '',
-        occurenceDate: '',
+        occurrenceDate: '',
         spentHours: ''
     },
     loading: false,
@@ -20,19 +22,50 @@ const activityItemState: ActivityItemState = {
 /// ASYNC THUNKS ///
 const getActivityById = createAsyncThunk('/activity/get/id', (id: string) => {
     return activityItemService.getActivityById(id).then((response) => {
-        return response;
+        return response.data;
     }).catch(err => {
-        return err;
+        if (axios.isAxiosError(err)) {
+            const error: HttpErrorModel = {
+                message: err.message,
+                statusCode: err.code
+            }
+            
+            return error;
+        } else {
+            return err;
+        }
     });
 });
 
 const updateActivity = createAsyncThunk('/activity/update/id', (activity: ActivityItem) => {
     return activityItemService.updateActivityItem(activity).then((response) => {
-        return response;
+        return response.data;
     }).catch(err => {
-        return err;
+        if (axios.isAxiosError(err)) {
+            const error: HttpErrorModel = {
+                message: err.message,
+                statusCode: err.code
+            }
+            
+            return error;
+        } else {
+            return err;
+        }
     })
 });
+
+const resetActivity = createAsyncThunk('/activity/reset/id', () => {
+    const resetActivityState: ActivityItem = {
+        id: '',
+        description: '',
+        jiraLink: '',
+        occurrenceDate: '',
+        spentHours: '',
+        title: ''
+    }
+
+    return resetActivityState;
+})
 
 export const ActivityItemSlice = createSlice({
     name: 'activityItemSlice',
@@ -68,9 +101,13 @@ export const ActivityItemSlice = createSlice({
                 message: action.error.message ? action.error.message : ''
             }
         });
+
+        builder.addCase(resetActivity.fulfilled, (state, action) => {
+            state.data = action.payload;
+        });
     }
 });
 
 export default ActivityItemSlice.reducer;
 
-export { getActivityById, updateActivity };
+export { getActivityById, updateActivity, resetActivity };

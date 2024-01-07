@@ -23,7 +23,7 @@ export default function CreateActivity() {
         id: '',
         description: '',
         jiraLink: '',
-        occurenceDate: '',
+        occurrenceDate: '',
         spentHours: '',
         title: '',
     }
@@ -105,7 +105,7 @@ export default function CreateActivity() {
                     <TextInput 
                         placeholder="Occurence Date" id="occurenceDate"
                         style={[inputStyles.inputMain, inputStyles.inputMd]} 
-                        onChangeText={ text => updateForm(text, 'occurenceDate') }
+                        onChangeText={ text => updateForm(text, 'occurrenceDate') }
                     />
 
                     <TextInput 

@@ -2,7 +2,7 @@ import { ActivityItem } from "./core.model";
 import { HttpErrorModel } from "./core.occ.model";
 
 type ActivityListState = {
-    data: ActivityItem[];
+    data: ActivityItem[] | null;
     loading: boolean;
     error?: HttpErrorModel | null | undefined;
 }

@@ -1,5 +1,5 @@
 import { ActivityIndicator, ScrollView, View } from "react-native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useSelector } from "react-redux";
 
@@ -17,18 +17,42 @@ import store from "../../../app/store";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";
+import { UnsubscribeListener } from "@reduxjs/toolkit";
+import { listenerMiddleware } from "../../../app/listener-middleware";
+import { HttpErrorModel } from "../../../model/core.occ.model";
 
 export default function ListActivityPage() {
-    
-    const activityListState: ActivityListState = useSelector((state: any) => state.activityItemList);
+    let activityListState: ActivityListState = useSelector((state: any) => state.activityItemList);
     
     const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
     useFocusEffect(
         React.useCallback(() => {
-            store.dispatch(fetchActivityList());
+            const data = store.getState().activityItemList.data;
+
+            if (data === null || data.length === 0) {
+                store.dispatch(fetchActivityList());
+            }
+
+            const fetchActivityListErrorSub: UnsubscribeListener = listenerMiddleware.startListening(
+                {
+                    actionCreator: fetchActivityList.rejected,
+                    effect: async (action, listenerApi) => {
+                        const httpError: any = action.payload;
+                        handleFetchError(httpError);
+                    }
+                }
+            );
+
+            return () => {
+                fetchActivityListErrorSub();
+            }
         }, [])
     );
+
+    const handleFetchError = (err: HttpErrorModel) => {
+        alert(err.message);
+    }
 
     const addButtonClick = () => {
         navigation.navigate('ActivityCreatePage');

@@ -85,7 +85,7 @@ export default function ActivityItemComponent(props: Props) {
 
                 <View style = {activityItemStyles.activityItemExtraData}>
                     <CustomText 
-                        message = { `Date: ${props.data.occurenceDate}` } 
+                        message = { `Date: ${props.data.occurrenceDate}` } 
                         bold = { false } 
                         additionalStyles = { [customTextStyles.black] }
                     />

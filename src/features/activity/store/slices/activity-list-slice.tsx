@@ -3,6 +3,8 @@ import { ActivityListState } from "../../../../model/core.states.model";
 import activityItemService from "../../core/services/activity-item.service";
 
 import { ActivityItem } from "../../../../model/core.model";
+import axios from "axios";
+import { HttpErrorModel } from "../../../../model/core.occ.model";
 
 const activityListInitialState: ActivityListState = {
     data: [],
@@ -11,35 +13,71 @@ const activityListInitialState: ActivityListState = {
 }
 
 /// ASYNC THUNKS ///
-const fetchActivityList = createAsyncThunk('/activity/all', () => {
+const fetchActivityList = createAsyncThunk('/activity/all', (_, { rejectWithValue }) => {
     return activityItemService.getActivitiesList().then((response) => {
-        return response;
+        return response.data;
     }).catch(err => {
-        return err;
+        if (axios.isAxiosError(err)) {
+            const error: HttpErrorModel = {
+                message: err.message,
+                statusCode: err.code
+            }
+
+            return rejectWithValue(error);
+        } else {
+            return rejectWithValue(err);
+        }
     });
 });
 
-const deleteActivity = createAsyncThunk('/activity/delete/id', ({activityId}: {activityId: string}) => {
-    return activityItemService.deleteActivityItem(activityId).then(() => {
-        return activityId;
+const deleteActivity = createAsyncThunk('/activity/delete/id', ({activityId}: {activityId: string}, {rejectWithValue}) => {
+    return activityItemService.deleteActivityItem(activityId).then((response) => {
+        return response.data;
     }).catch(err => {
-        return err;
+        if (axios.isAxiosError(err)) {
+            const error: HttpErrorModel = {
+                message: err.message,
+                statusCode: err.code
+            }
+            
+            return rejectWithValue(error);
+        } else {
+            return rejectWithValue(err);
+        }
     })
 });
 
-const addActivity = createAsyncThunk('/activity/add', (activity: ActivityItem) => {
+const addActivity = createAsyncThunk('/activity/add', (activity: ActivityItem, {rejectWithValue}) => {
     return activityItemService.addActivityItem(activity).then((response) => {
-        return response;
+        return response.data;
     }).catch(err => {
-        return err;
+        if (axios.isAxiosError(err)) {
+            const error: HttpErrorModel = {
+                message: err.message,
+                statusCode: err.code
+            }
+            
+            return rejectWithValue(error);
+        } else {
+            return rejectWithValue(err);
+        }
     })
 });
 
-const getActivityById = createAsyncThunk('/activity/get/id', (id: string) => {
+const getActivityById = createAsyncThunk('/activity/get/id', (id: string, { rejectWithValue }) => {
     return activityItemService.getActivityById(id).then((response) => {
-        return response;
+        return response.data;
     }).catch(err => {
-        return err;
+        if (axios.isAxiosError(err)) {
+            const error: HttpErrorModel = {
+                message: err.message,
+                statusCode: err.code
+            }
+            
+            return rejectWithValue(error);
+        } else {
+            return rejectWithValue(err);
+        }
     })
 });
 
@@ -59,11 +97,9 @@ export const ActivityListSlice = createSlice({
         });
 
         builder.addCase(fetchActivityList.rejected, (state, action) => {
+            const httpError: any = action.payload;
             state.loading = false;
-            state.error = {
-                statusCode: action.error.code ? action.error.code : '',
-                message: action.error.message ? action.error.message : ''
-            }
+            state.error = httpError
         });
 
         /// delete activity ///

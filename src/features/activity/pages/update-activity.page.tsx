@@ -10,7 +10,7 @@ import updateActivityPageStyles from "../../../style/pages/update-activity-page.
 import { ActivityItem } from "../../../model/core.model";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import store from "../../../app/store";
-import { getActivityById, updateActivity } from "../store/slices/activity-item-slice";
+import { getActivityById, resetActivity, updateActivity } from "../store/slices/activity-item-slice";
 import { ActivityItemState } from "../../../model/core.states.model";
 import { useSelector } from "react-redux";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -26,18 +26,22 @@ export default function UpdateActivityPage() {
     const activityData = activityItemState.data;
 
     const formDataInitial: ActivityItem = {
-        id: activityData.id,
-        description: activityData.description,
-        jiraLink: activityData.jiraLink,
-        occurenceDate: activityData.occurenceDate,
-        spentHours: activityData.spentHours,
-        title: activityData.title,
+        id: '',
+        description: '',
+        jiraLink: '',
+        occurrenceDate: '',
+        spentHours: '',
+        title: '',
     }
 
     const route = useRoute();
 
     const [updatePending, setUpdatePending] = useState(false);
     const [ formData, setFormData ] = useState<ActivityItem>(formDataInitial);
+
+    const populateFormInitialData = (activityItem: ActivityItem) => {
+        setFormData(activityItem);
+    }
 
     const getActivityData = () => {
         const params: any = route.params;
@@ -63,12 +67,14 @@ export default function UpdateActivityPage() {
             id: id,
             description: formData.description,
             jiraLink: formData.jiraLink,
-            occurenceDate: formData.occurenceDate,
+            occurrenceDate: formData.occurrenceDate,
             spentHours: formData.spentHours,
             title: formData.title
         }
 
-        store.dispatch(updateActivity(payload));
+        console.log(formData.description);
+
+        // store.dispatch(updateActivity(payload));
     }
 
     const submitFormSuccess = () => {
@@ -87,6 +93,10 @@ export default function UpdateActivityPage() {
 
     useFocusEffect(
         React.useCallback(() => {
+            const storeUnsubscribe = store.subscribe(() => {
+                populateFormInitialData(store.getState().activityItem.data);
+            })
+
             getActivityData();
 
             const updateActivitySucessSub: UnsubscribeListener = listenerMiddleware.startListening(
@@ -110,8 +120,10 @@ export default function UpdateActivityPage() {
             return () => {
                 updateActivitySucessSub();
                 updateActivityErrorSub();
+                store.dispatch(resetActivity());
+                storeUnsubscribe();
             }
-        }, [])
+        }, [route.params])
     );
     
     return (
@@ -130,35 +142,35 @@ export default function UpdateActivityPage() {
                     <SafeAreaView style={updateActivityPageStyles.updateActvityForm}>
                         <TextInput 
                             placeholder="Title" id="title" 
-                            defaultValue={ formData.title }
+                            defaultValue={ activityData.title }
                             style={[inputStyles.inputMain, inputStyles.inputMd]} 
                             onChangeText = { text => updateForm(text, 'title') }
                         />
 
                         <TextInput 
-                            placeholder="Occurence Date" id="occurenceDate" 
-                            defaultValue={ formData.occurenceDate }
+                            placeholder="Occurrence Date" id="occurrenceDate" 
+                            defaultValue={ activityData.occurrenceDate }
                             style={[inputStyles.inputMain, inputStyles.inputMd]} 
-                            onChangeText={ text => updateForm(text, 'occurenceDate') }
+                            onChangeText={ text => updateForm(text, 'occurrenceDate') }
                         />
 
                         <TextInput 
                             placeholder="Jira Link" id="jiraLink" 
-                            defaultValue={ formData.jiraLink }
+                            defaultValue={ activityData.jiraLink }
                             style={[inputStyles.inputMain, inputStyles.inputMd]} 
                             onChangeText={ text => updateForm(text, 'jiraLink') }
                         />
 
                         <TextInput 
                             placeholder="description" id="description" 
-                            defaultValue={ formData.description }
+                            defaultValue={ activityData.description }
                             style={[inputStyles.inputMain, inputStyles.inputMd]} 
                             onChangeText={ text => updateForm(text, 'description') }
                         />
 
                         <TextInput 
                             placeholder="Spent Hours" id="spentHours" 
-                            defaultValue={ formData.spentHours }
+                            defaultValue={ activityData.spentHours }
                             style={[inputStyles.inputMain, inputStyles.inputMd]} 
                             keyboardType="number-pad" 
                             onChangeText={ text => updateForm(text, 'spentHours') }
