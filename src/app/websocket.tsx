@@ -1,11 +1,18 @@
 import { fetchActivityList } from "../features/activity/store/slices/activity-list-slice";
+import { setOffline, setOnline } from "../features/online-status/store/online-status-state";
+import { listenerMiddleware } from "./listener-middleware";
 import store from "./store";
 
 import NetInfo from "@react-native-community/netinfo";
 
 function webSocketObject() {
-    let websocket: WebSocket;
+    let websocket: WebSocket | null;
     let isConnected = false;
+
+    const init = () => {
+        addOnlineStatusChangeListener();
+        addOfflineStatusChangeListener();
+    }
 
     const handleIncomingMessage = (message: string) => {
         if (message === "new-data-arrived") {
@@ -26,6 +33,7 @@ function webSocketObject() {
     const disconnect = () => {
         if (websocket !== null) {
             websocket.close();
+            websocket = null;
         }
 
         setIsConnected(false);
@@ -39,24 +47,42 @@ function webSocketObject() {
         return isConnected;
     }
 
-    const getWebSocket = (): WebSocket => {
+    const getWebSocket = (): WebSocket | null => {
         return websocket;
     }
 
-    const addNetworkChangeListener = () => {
-        NetInfo.addEventListener(state => {
-            if (websocket && websocket.CLOSED && state.isConnected) {
-                websocket = new WebSocket("ws://localhost:8080/websocket/notifications");
+    const handleOnlineStatusChange = () => {
+        connect();
+    }
+
+    const handleOfflineStatusChange = () => {
+        disconnect();
+    }
+
+    const addOnlineStatusChangeListener = () => {
+        listenerMiddleware.startListening({
+            actionCreator: setOnline,
+            effect: () => {
+                handleOnlineStatusChange();
+            }
+        });
+
+        listenerMiddleware.startListening({
+            actionCreator: setOffline,
+            effect: () => {
+                handleOfflineStatusChange();
             }
         });
     }
+
+    const addOfflineStatusChangeListener = () => {}
 
     return {
         connect: connect,
         disconnect: disconnect,
         getIsConnected: getIsConnected,
         getWebSocket: getWebSocket,
-        addNetworkChangeListener: addNetworkChangeListener
+        init: init
     }
 }
 

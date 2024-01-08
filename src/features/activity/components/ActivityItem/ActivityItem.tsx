@@ -24,13 +24,25 @@ export default function ActivityItemComponent(props: Props) {
 
     
     const triggerItemDelete = () => {
-        const payloadObject = {
-            activityId: props.data.id.toString()
+        if (props.data.id) {
+            const activityId = props.data.id.toString();
+
+            const payloadObject = {
+                activityId: activityId
+            }
+
+            store.dispatch(deleteActivity(payloadObject));
+        } else {
+            alert("Something went wrong...no id found");
         }
-        store.dispatch(deleteActivity(payloadObject));
     }
 
     const removeButtonClick = () => {
+        if (store.getState().onlineStatus.isOnline === false) {
+            alert("Network Error...server down or you are offline");
+            return;
+        }
+
         return Alert.alert(
             'Are you sure?',
             "This action will completely remove the item",
@@ -48,6 +60,11 @@ export default function ActivityItemComponent(props: Props) {
     }
 
     const updateButtonClick = () => {
+        if (store.getState().onlineStatus.isOnline === false) {
+            alert("Network Error...server down or you are offline");
+            return;
+        }
+
         navigation.navigate('UpdateActivityPage', {id: props.data.id});
     }
 

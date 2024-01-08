@@ -17,6 +17,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { listenerMiddleware } from "../../../app/listener-middleware";
 import { UnsubscribeListener } from "@reduxjs/toolkit";
+import activityItemLocalDbServiceInstance from "../core/services/activity-item.localdb.service";
 
 export default function CreateActivity() {
     const formDataInitial: ActivityItem = {
@@ -40,7 +41,24 @@ export default function CreateActivity() {
         }));
     }
 
+    const createOfflineActivity = () => {
+        setAddPending(true);
+
+        activityItemLocalDbServiceInstance.insertActivity(formData).then(() => {
+            setAddPending(false);
+            alert("Added activity on the localdb");
+        }).catch((err) => {
+            setAddPending(false);
+            alert(`Something went wrong: ${err.message}`);
+        });
+    }
+
     const submitForm = () => {
+        if (store.getState().onlineStatus.isOnline === false) {
+            createOfflineActivity();
+            return;
+        }
+        
         setAddPending(true);
         store.dispatch(addActivity(formData));
     }

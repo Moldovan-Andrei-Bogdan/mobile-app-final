@@ -82,11 +82,9 @@ export const ActivityItemSlice = createSlice({
         });
 
         builder.addCase(getActivityById.rejected, (state, action) => {
+            const httpError: any = action.payload;
             state.loading = false;
-            state.error = {
-                statusCode: action.error.code ? action.error.code : '',
-                message: action.error.message ? action.error.message : ''
-            }
+            state.error = httpError;
         });
 
         builder.addCase(updateActivity.fulfilled, (state, action) => {
@@ -95,11 +93,9 @@ export const ActivityItemSlice = createSlice({
         });
 
         builder.addCase(updateActivity.rejected, (state, action) => {
+            const httpError: any = action.payload;
             state.loading = false;
-            state.error = {
-                statusCode: action.error.code ? action.error.code : '',
-                message: action.error.message ? action.error.message : ''
-            }
+            state.error = httpError;
         });
 
         builder.addCase(resetActivity.fulfilled, (state, action) => {

@@ -20,6 +20,7 @@ import React from "react";
 import { UnsubscribeListener } from "@reduxjs/toolkit";
 import { listenerMiddleware } from "../../../app/listener-middleware";
 import { HttpErrorModel } from "../../../model/core.occ.model";
+import { setOnline } from "../../online-status/store/online-status-state";
 
 export default function ListActivityPage() {
     let activityListState: ActivityListState = useSelector((state: any) => state.activityItemList);
@@ -44,8 +45,18 @@ export default function ListActivityPage() {
                 }
             );
 
+            const fetchActivityListOnOnlineChange: UnsubscribeListener = listenerMiddleware.startListening(
+                {
+                    actionCreator: setOnline,
+                    effect: () => {
+                        store.dispatch(fetchActivityList());
+                    }
+                }
+            );
+
             return () => {
                 fetchActivityListErrorSub();
+                fetchActivityListOnOnlineChange();
             }
         }, [])
     );

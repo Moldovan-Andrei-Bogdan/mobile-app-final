@@ -104,11 +104,9 @@ export const ActivityListSlice = createSlice({
 
         /// delete activity ///
         builder.addCase(deleteActivity.rejected, (state, action) => {
-            state.error = {
-                statusCode: action.error.code ? action.error.code : '',
-                message: action.error.message ? action.error.message : ''
-            }
-            alert(`Something went wrong: ${action.error.message}`);
+            const httpError: any = action.payload;
+            state.error = httpError;
+            alert(`Something went wrong: ${httpError.message}`);
         });
 
         builder.addCase(deleteActivity.fulfilled, (state, action) => {
@@ -118,10 +116,8 @@ export const ActivityListSlice = createSlice({
 
         /// add activity ///
         builder.addCase(addActivity.rejected, (state, action) => {
-            state.error = {
-                statusCode: action.error.code ? action.error.code : '',
-                message: action.error.message ? action.error.message : ''
-            }
+            const httpError: any = action.payload;
+            state.error = httpError;
         });
     }
 });

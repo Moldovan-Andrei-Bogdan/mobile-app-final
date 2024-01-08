@@ -6,6 +6,7 @@ import axios from "axios";
 import { error } from "console";
 import { ActivityListState } from "../../../../model/core.states.model";
 import { useSelector } from "react-redux";
+import { Url } from "url";
 
 // initDatabase();
 
@@ -26,6 +27,12 @@ function ActivityItemService() {
         return axios.post<ActivityItem | null>(serverUrl, payload);
     }
 
+    const addActivities = (payload: ActivityItem[]) => {
+        const url = `${serverUrl}?multiple=true`;
+
+        return axios.post<ActivityItem[] | null>(url, payload);
+    }
+
     const getActivityById = (id: string) => {
         const url = `${serverUrl}/${id}`;
 
@@ -44,6 +51,7 @@ function ActivityItemService() {
         getActivitiesList: getActivitiesList,
         deleteActivityItem: deleteActivityItem,
         addActivityItem: addActivityItem,
+        addActivities: addActivities,
         getActivityById: getActivityById,
         updateActivityItem: updateActivityItem
     }
@@ -116,7 +124,7 @@ export default activityItemService;
     //         db.transaction(
     //             (tx) => {
     //               tx.executeSql(
-    //                 'INSERT INTO activitiesg (title, occurenceDate, jiraLink, description, spentHours) VALUES (?, ?, ?, ?, ?)',
+    //                 'INSERT INTO activitiesg (title, occurrenceDate, jiraLink, description, spentHours) VALUES (?, ?, ?, ?, ?)',
     //                 [payload.title, payload.occurenceDate, payload.jiraLink, payload.description, payload.spentHours],
     //                 (_, { insertId }) => {
     //                     if (insertId) {

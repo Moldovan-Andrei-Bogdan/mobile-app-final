@@ -1,12 +1,12 @@
 import * as SQLite from 'expo-sqlite';
 
-const db = SQLite.openDatabase('bookdb.db');
+const db = SQLite.openDatabase('activitiesdb.db');
 
 export const initDatabase = () => {
   db.transaction(
     (tx) => {
       tx.executeSql(
-        'SELECT name FROM sqlite_master WHERE type="table" AND name="activitiesg"',
+        'SELECT name FROM sqlite_master WHERE type="table" AND name="activitiessg"',
         [],
         (_, { rows }) => {
           const tableExists = rows.length > 0;
@@ -14,7 +14,7 @@ export const initDatabase = () => {
           if (!tableExists) {
             // Table doesn't exist, so create it
             tx.executeSql(
-              'CREATE TABLE IF NOT EXISTS activitiesg (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, occurenceDate TEXT, jiraLink TEXT, description TEXT, spentHours TEXT)',
+              'CREATE TABLE IF NOT EXISTS activitiessg (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, occurrenceDate TEXT, jiraLink TEXT, description TEXT, spentHours TEXT)',
               [],
               (_, error) => {
                 if (error) {

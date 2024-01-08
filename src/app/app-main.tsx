@@ -6,12 +6,17 @@ import CreateActivity from "../features/activity/pages/create-activity.pages";
 import ListActivityPage from "../features/activity/pages/list-activity.page";
 import UpdateActivityPage from "../features/activity/pages/update-activity.page";
 import webSocketInstance from "./websocket";
+import onlineCheckerServiceInstance from "./online-checker-service";
+import activityItemLocalDbServiceInstance from "../features/activity/core/services/activity-item.localdb.service";
+import { initDatabase } from "../localdb/connection";
 
 const Stack = createNativeStackNavigator();
 
 export default function AppEntry() {
-    webSocketInstance.connect();
-    webSocketInstance.addNetworkChangeListener();
+    initDatabase();
+    webSocketInstance.init();
+    onlineCheckerServiceInstance.init();
+    activityItemLocalDbServiceInstance.init();
     
     return (
         <NavigationContainer>

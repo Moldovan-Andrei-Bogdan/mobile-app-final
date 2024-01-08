@@ -74,7 +74,7 @@ export default function UpdateActivityPage() {
 
         console.log(formData.description);
 
-        // store.dispatch(updateActivity(payload));
+        store.dispatch(updateActivity(payload));
     }
 
     const submitFormSuccess = () => {
@@ -86,9 +86,13 @@ export default function UpdateActivityPage() {
         }, 1000);
     }
 
-    const submitFormError = (errorMessage: string | undefined) => {
+    const submitFormError = (errorObject: any) => {
         setUpdatePending(false);
-        alert(`Something went wrong: ${errorMessage}`);
+        alert(`Something went wrong: ${errorObject.message}`);
+    }
+
+    const handleGetActivityByIdError = (errorObject: any) => {
+        alert(`Something went wrong: ${errorObject.message}`);
     }
 
     useFocusEffect(
@@ -112,16 +116,26 @@ export default function UpdateActivityPage() {
                 {
                     actionCreator: updateActivity.rejected,
                     effect: async (action, listenerApi) => {
-                        submitFormError(action.error.message);
+                        const errorObject: any = action.payload;
+                        submitFormError(errorObject);
                     }
                 }
             );
+
+            const getActivityByIdErrorSub: UnsubscribeListener = listenerMiddleware.startListening({
+                actionCreator: getActivityById.rejected,
+                effect: async (action, listenerApi) => {
+                    const errorObject: any = action.payload;
+                    handleGetActivityByIdError(errorObject);
+                }
+            });
 
             return () => {
                 updateActivitySucessSub();
                 updateActivityErrorSub();
                 store.dispatch(resetActivity());
                 storeUnsubscribe();
+                getActivityByIdErrorSub();
             }
         }, [route.params])
     );

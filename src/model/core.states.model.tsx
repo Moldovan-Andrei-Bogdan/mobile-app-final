@@ -13,4 +13,8 @@ type ActivityItemState = {
     error?: HttpErrorModel | null | undefined;
 }
 
-export { ActivityListState, ActivityItemState }
+type OnlineStatusState = {
+    isOnline: boolean;
+}
+
+export { ActivityListState, ActivityItemState, OnlineStatusState }

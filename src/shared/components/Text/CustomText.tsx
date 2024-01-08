@@ -1,7 +1,7 @@
 import { StyleSheet, Text } from "react-native";
 
 type Props = {
-    message: string;
+    message: string | null | undefined;
     bold: boolean;
     additionalStyles?: any;
 }
